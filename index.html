@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A&L Windows - WERS & Performance Data</title>
+    
+    <!-- Embedded data with all WERS and FR5 proxy information -->
+    <script src="embedded_data.js"></script>
+    
+    <style>
+        /* CSS Styles inspired by A&L Windows design language */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            /* use full available width while keeping comfortable inner padding */
+            max-width: none;
+            width: 100%;
+            margin: 0;               /* full-bleed width */
+            padding: 1rem 1.5rem;   /* adjust horizontal padding as needed */
+            box-sizing: border-box;
+        }
+
+        .tab-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .tab-nav {
+            display: flex;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: rgba(52, 73, 94, 0.1);
+            color: #2c3e50;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            min-height: 400px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .results-container {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 1.5rem;
+            border-left: 4px solid #3498db;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .results-table th {
+            background: #34495e;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .tab-nav {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                flex: none;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .results-table {
+                font-size: 0.9rem;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .data-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #0c5460;
+        }
+
+        /* Star rating styles */
+        .star-svg {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 2px;
+        }
+        .star-empty { fill: #e0e0e0; }
+        .star-label { margin-left: 6px; color: #666; font-size: 0.9rem; vertical-align: middle; }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>A&L Windows</h1>
+            <p>WERS Performance Data & Reverse Proxy Systems</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="data-info">
+            <strong>Data Source:</strong> Embedded internally (no external files needed)
+            <span id="data-status" style="margin-left: 1rem; font-weight: 600; color: #e74c3c;">Loading embedded data...</span>
+        </div>
+
+        <div class="tab-container">
+            <nav class="tab-nav">
+                <button class="tab-button active" onclick="showTab('proxy-finder')">Proxy Finder</button>
+                <button class="tab-button" onclick="showTab('window-code')">Window Code</button>
+                <button class="tab-button" onclick="showTab('reverse-proxy-vic')">Reverse Proxy VIC</button>
+                <button class="tab-button" onclick="showTab('reverse-proxy-qld')">Reverse Proxy QLD</button>
+                <button class="tab-button" onclick="showTab('good-better-best')">Good Better Best</button>
+            </nav>
+
+            <!-- Proxy Finder Tab -->
+            <div id="proxy-finder" class="tab-content active">
+                <div class="info-card">
+                    <h3>Proxy Finder - A&L WERS Code to FR5 Proxy Values</h3>
+                    <p>Find FR5 proxy equivalents for A&L WERS codes. Results include U-Value, SHGC, performance ratings, and FR5 proxy information.</p>
+                </div>
+                
+                <div class="search-section">
+                    <div class="form-group">
+                        <label for="wers-code-select">Select A&L WERS Code:</label>
+                        <select id="wers-code-select" class="form-control">
+                            <option value="">Please load Excel file first...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="proxy-results" class="results-container" style="display: none;">
+                    <h4>Proxy Finder Results:</h4>
+                    <div id="proxy-results-content"></div>
+                </div>
+            </div>
+
+            <!-- Window Code Tab -->
+            <div id="window-code" class="tab-content">
+                <div class="info-card">
+                    <h3>Window Code Finder - Find A&L WERS Code by Product Specifications</h3>
+                    <p>Use filters to find the appropriate A&L WERS code for your window specifications.</p>
+                </div>
+                
+                <div class="search-section">
+                    <div class="form-group">
+                        <label for="region-filter">Region:</label>
+                        <select id="region-filter" class="form-control" onchange="updateWindowCodeFilters(); searchWindowCode();">
+                            <option value="">Select Region...</option>
+                            <option value="ALL">All Regions</option>
+                            <option value="QLD">Queensland</option>
+                            <option value="VIC">Victoria</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="platform-filter">Product Platform:</label>
+                        <select id="platform-filter" class="form-control" onchange="updateWindowCodeFilters(); searchWindowCode();">
+                            <option value="">Select Platform...</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Boutique">Boutique</option>
+                            <option value="Comfort Smart">Comfort Smart</option>
+                            <option value="Comfort Smart Ultra">Comfort Smart Ultra</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="glass-spec-filter">Glass Specification:</label>
+                        <select id="glass-spec-filter" class="form-control" onchange="updateWindowCodeFilters(); searchWindowCode();">
+                            <option value="">Select Glass Spec...</option>
+                            <option value="SG">Single Glazed (SG)</option>
+                            <option value="DG">Double Glazed (DG)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="operator-filter">Operator Type:</label>
+                        <select id="operator-filter" class="form-control" onchange="updateWindowCodeFilters(); searchWindowCode();">
+                            <option value="">Select Operator Type...</option>
+                            <option value="Sliding Door">Sliding Door</option>
+                            <option value="Sliding Window">Sliding Window</option>
+                            <option value="Awning Window">Awning Window</option>
+                            <option value="Double Hung Window">Double Hung Window</option>
+                            <option value="Louvre">Louvre</option>
+                            <option value="Fixed Window">Fixed Window</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="window-code-results" class="results-container" style="display: none;">
+                    <h4>Window Code Results:</h4>
+                    <div id="window-code-results-content"></div>
+                </div>
+            </div>
+
+            <!-- Reverse Proxy VIC Tab -->
+            <div id="reverse-proxy-vic" class="tab-content">
+                <div class="info-card">
+                    <h3>Reverse Proxy Victoria</h3>
+                    <p>Find A&L WERS codes from FR5 proxy codes for Victoria-specific applications.</p>
+                </div>
+                
+                <div class="search-section">
+                    <div class="form-group">
+                        <label for="vic-proxy-filter">Proxy Code:</label>
+                        <!-- input shows results instantly on typing -->
+                        <input id="vic-proxy-filter" class="form-control" type="text" placeholder="Enter Proxy Code..." oninput="searchVIC()">
+                    </div>
+                </div>
+
+                <div id="vic-results" class="results-container" style="display: none;">
+                    <h4>VIC Reverse Proxy Results:</h4>
+                    <div id="vic-results-content"></div>
+                </div>
+            </div>
+
+            <!-- Reverse Proxy QLD Tab -->
+            <div id="reverse-proxy-qld" class="tab-content">
+                <div class="info-card">
+                    <h3>Reverse Proxy Queensland</h3>
+                    <p>Find A&L WERS codes from FR5 proxy codes for Queensland-specific applications.</p>
+                </div>
+                
+                <div class="search-section">
+                    <div class="form-group">
+                        <label for="qld-proxy-filter">Proxy Code:</label>
+                        <!-- input shows results instantly on typing -->
+                        <input id="qld-proxy-filter" class="form-control" type="text" placeholder="Enter Proxy Code..." oninput="searchQLD()">
+                    </div>
+                </div>
+
+                <div id="qld-results" class="results-container" style="display: none;">
+                    <h4>QLD Reverse Proxy Results:</h4>
+                    <div id="qld-results-content"></div>
+                </div>
+            </div>
+
+            <!-- Good Better Best Tab -->
+            <div id="good-better-best" class="tab-content">
+				<div class="info-card">
+					<h3>Good Better Best Recommendations</h3>
+					<p>Get A&L's recommended window solutions based on performance tiers.</p>
+				</div>
+				
+				<div class="search-section">
+					<!-- Instant filters: region, product range, operator -->
+					<div class="form-group">
+						<label for="gbb-region-filter">Region:</label>
+						<select id="gbb-region-filter" class="form-control" onchange="updateGBBFilters(); searchGoodBetterBest();">
+							<option value="">Select Region...</option>
+							<option value="ALL">All Regions</option>
+							<option value="QLD">Queensland</option>
+							<option value="VIC">Victoria</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="gbb-product-range">Product Range:</label>
+						<select id="gbb-product-range" class="form-control" onchange="searchGoodBetterBest();">
+							<option value="">Select Product Range...</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="gbb-operator">Operator Type:</label>
+						<select id="gbb-operator" class="form-control" onchange="searchGoodBetterBest();">
+							<option value="">Select Operator Type...</option>
+						</select>
+					</div>
+ 				</div>
+
+                <div id="gbb-results" class="results-container" style="display: none;">
+                    <h4>Good Better Best Results:</h4>
+                    <div id="gbb-results-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables to store Excel data
+        let excelData = {};
+        let table1Data = []; // A&L WERS table (A1:AB817)
+        let table2Data = []; // ALL-WINDOW table (A1:T25377)
+        let wersCodeOptions = [];
+        let glassOptions = [];
+
+        // Column index mappings for Table1 (A&L WERS) - Based on CSV structure
+        const TABLE1_COLUMNS = {
+            'FR5': 0,
+            'GBB': 1,
+            'Window Id': 2,
+            'WERS FR5': 3,
+            'FR5 Window Id': 4,
+            'Frame Description': 5,
+            'Manufacturer': 6,
+            'Glass Supplier': 7,
+            'Glass': 8,
+            'Cooling*': 9,
+            'Cooling%': 10,
+            'Heating*': 11,
+            'Heating%': 12,
+            'Uw': 13,
+            'SHGCw': 14,
+            'Proxy Uw': 15,
+            'Proxy SHGCw': 16,
+            'TVw': 17,
+            'Air Infiltration': 18,
+            'Frame Type': 19,
+            'Frame Material': 20,
+            'Operator Type': 21,
+            'GlassSpecification': 22,
+            'Glass Type': 23,
+            'Platform': 24,
+            'Product Range': 25,
+            'Note': 26,
+            'VIC / QLD': 27
+        };
+
+        // Column index mappings for Table2 (ALL-WINDOW) - Based on CSV structure
+        const TABLE2_COLUMNS = {
+            'Window Id': 0,
+            'FR5 Window Id': 1,
+            'Uw': 2,
+            'SHGCw': 3,
+            'Column4': 4,
+            'Description': 5,
+            'Operator Type': 6
+        };
+
+        // Glass options as provided
+        const GLASS_OPTIONS = [
+            "4Clr/10Ar/4Clr - Warm Edge Spacer",
+            "4Clr/10Ar/4PbAs2 - Warm Edge Spacer",
+            "4PbAS2-10Ar-4PbG - Warm Edge Spacer",
+            "4Clr/10Ar/4PLE85A - Warm Edge Spacer",
+            "6PH08/8Ar/4Clr - Warm Edge Spacer",
+            "4OptithermS3ProTClr/10Ar/4LoEi89 Sur4 - Warm Edge Spacer",
+            "4OptithermS3ProTClr/10Ar/4ET Sur4 - Warm Edge Spacer",
+            "6Clr/8Ar/4Clr - Warm Edge Spacer",
+            "6Clr/8Ar/4PLE85A - Warm Edge Spacer",
+            "6Clr/8Ar/4PbAS2 - Warm Edge Spacer",
+            "6PbAS2/8Ar/4PbG 4 - Warm Edge Spacer",
+            "6OptithermS3ProTClr/8Ar/4LoEi89 Sur4 - Warm Edge Spacer",
+            "6OptithermS3ProTClr/8Ar/4ET Sur4 - Warm Edge Spacer",
+            "6Clr/6Ar/6Clr - Warm Edge Spacer",
+            "6PbAS2/6Ar/6PbG 4 - Warm Edge Spacer",
+            "4Clr/8Ar/6.38ClrLam - Warm Edge Spacer",
+            "4PbAs2/8Ar/6.38PbG #4 - Warm Edge Spacer",
+            "4Clr/8Ar/6.50Clr - Warm Edge Spacer",
+            "4Clr/10Ar/4Clr - Aluminium Spacer",
+            "4Clr/8Ar/6.38CP - Aluminium Spacer",
+            "5Clr/8Ar/5Clr - Aluminium Spacer",
+            "5Gy/8Ar/5Clr - Aluminium Spacer",
+            "5SpGy/8Ar/5Clr - Aluminium Spacer",
+            "6Clr/8Ar/4Clr - Aluminium Spacer",
+            "6SpGy/8Ar/4Clr - Aluminium Spacer",
+            "4OptiTherm/10Ar/4Clr - Aluminium Spacer",
+            "6Clr/6Ar/6PbAS2 - Aluminium Spacer",
+            "4Clr/10Ar/4PbAS2 - Aluminium Spacer",
+            "4PbAS2-10Ar-4PbG - Aluminium Spacer",
+            "6PbAS2/6Ar/6PbG - Aluminium Spacer",
+            "4PLE85A/10Ar/4Clr - Aluminium Spacer",
+            "4Clr/8Ar/6.38ClrLam - Aluminium Spacer",
+            "6Clr/6Ar/6.38ClrLam - Aluminium Spacer",
+            "5Clr/8Ar/5PbG - Aluminium Spacer",
+            "5Gy/8Ar/5PBG - Aluminium Spacer",
+            "4Clr/10Ar/4PbG - Aluminium Spacer"
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmbeddedData(); // Load embedded data on page load
+        });
+
+        /**
+         * Load embedded data from embedded_data.js
+         * Data is loaded directly from JavaScript constants instead of external files
+         */
+        function loadEmbeddedData() {
+            const statusEl = document.getElementById('data-status');
+            
+            try {
+                // Verify embedded data is available
+                if (typeof embeddedTable1Data === 'undefined' || typeof embeddedTable2Data === 'undefined') {
+                    throw new Error('Embedded data not found. Ensure embedded_data.js is loaded.');
+                }
+                
+                // Use embedded data
+                table1Data = embeddedTable1Data;
+                table2Data = embeddedTable2Data;
+                
+                console.log('Loaded Table1 (A&L WERS):', table1Data.length, 'rows');
+                console.log('Loaded Table2 (ALL-WINDOW):', table2Data.length, 'rows');
+                
+                // Process the data and populate dropdowns
+                processExcelData();
+                populateDropdowns();
+                
+                // Update status
+                statusEl.textContent = '✓ Embedded data loaded successfully';
+                statusEl.style.color = '#27ae60';
+                
+            } catch (error) {
+                console.error('Error loading embedded data:', error);
+                statusEl.textContent = '✗ Error: ' + error.message;
+                statusEl.style.color = '#e74c3c';
+            }
+        }
+
+        /**
+         * Legacy CSV loading function - kept for reference
+         * This is now replaced by loadEmbeddedData() for internal data
+         * @deprecated Use loadEmbeddedData() instead
+         */
+        function loadCSVData() {
+            console.warn('loadCSVData() is deprecated. Use loadEmbeddedData() instead.');
+            loadEmbeddedData();
+        }
+
+        /**
+         * Parse CSV text into 2D array
+         * Handles semicolon-delimited CSV files
+         */
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const data = [];
+            
+            lines.forEach((line, index) => {
+                // Handle both comma and semicolon delimiters
+                const delimiter = line.includes(';') ? ';' : ',';
+                const row = line.split(delimiter).map(cell => {
+                    // Remove quotes if present
+                    return cell.trim().replace(/^"(.*)"$/, '$1');
+                });
+                data.push(row);
+            });
+            
+            return data;
+        }
+
+        /**
+         * Process Excel data to extract required information
+         */
+        function processExcelData() {
+            wersCodeOptions = [];
+            
+            // Extract WERS codes from Table1 (Window Id column = index 2)
+            if (table1Data.length > 1) {
+                for (let i = 1; i < table1Data.length; i++) {
+                    const row = table1Data[i];
+                    if (row && row[TABLE1_COLUMNS['Window Id']]) {
+                        const wersCode = row[TABLE1_COLUMNS['Window Id']];
+                        if (wersCode && wersCode.toString().trim() !== '') {
+                            wersCodeOptions.push({
+                                code: wersCode,
+                                rowIndex: i
+                            });
+                        }
+                    }
+                }
+            }
+            
+            console.log('Extracted WERS codes:', wersCodeOptions.length);
+            console.log('Table1 headers sample:', table1Data[0]);
+            console.log('Table2 headers sample:', table2Data[0]);
+        }
+
+        /**
+         * Populate dropdown menus with data
+         */
+        function populateDropdowns() {
+            // Populate WERS code dropdown
+            const wersSelect = document.getElementById('wers-code-select');
+            wersSelect.innerHTML = '<option value="">Select A&L WERS Code...</option>';
+            
+            wersCodeOptions.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.rowIndex;
+                option.textContent = item.code;
+                wersSelect.appendChild(option);
+            });
+
+            // Auto-select first available WERS code to display results instantly
+            if (wersSelect.options.length > 1) {
+                wersSelect.selectedIndex = 1;
+            }
+
+            // Listen for user changes and refresh results
+            wersSelect.addEventListener('change', searchProxyFinder);
+
+            // Populate VIC and QLD proxy dropdowns
+            populateProxyDropdowns();
+
+            // Populate glass options explicitly (fixed id)
+            populateGlassOptions();
+
+            // Initialize and cascade window-code filters based on data
+            updateWindowCodeFilters();
+            // Initialize Good Better Best filters
+            updateGBBFilters();
+        }
+
+        /**
+         * Populate proxy code dropdowns from Table2
+         */
+        function populateProxyDropdowns() {
+            // QLD and VIC are now text inputs; no select population required.
+            // Keep this function simple (it still exists for future use).
+            return;
+         }
+
+        /**
+         * Populate glass options dropdown
+         */
+        function populateGlassOptions() {
+            const glassSelect = document.getElementById('glass-spec-filter'); // fixed id
+            if (!glassSelect) return;
+            glassSelect.innerHTML = '<option value="">Select Glass Spec...</option>';
+            
+            // Extract unique glass types from Table1
+            const glassTypes = new Set();
+            if (table1Data.length > 1) {
+                for (let i = 1; i < table1Data.length; i++) {
+                    const row = table1Data[i];
+                    const glassType = row[TABLE1_COLUMNS['GlassSpecification']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['Glass']];
+                    if (glassType && glassType.toString().trim() !== '') {
+                        glassTypes.add(glassType.toString().trim());
+                    }
+                }
+            }
+            
+            // If no data loaded yet, use hardcoded options
+            const finalList = glassTypes.size === 0 ? GLASS_OPTIONS.slice() : Array.from(glassTypes);
+            // normalize, remove empties and sort case-insensitive
+            const cleaned = finalList.map(s => s.toString().trim()).filter(s => s !== '').sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+            cleaned.forEach(glass => {
+                const option = document.createElement('option');
+                option.value = glass;
+                option.textContent = glass;
+                glassSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Update window code filters based on selections
+         */
+        function updateWindowCodeFilters() {
+            // Build sets of available values depending on current selections.
+            const regionSel = document.getElementById('region-filter').value;
+            const platformSel = document.getElementById('platform-filter').value;
+            const glassSpecSel = document.getElementById('glass-spec-filter').value;
+            const operatorSel = document.getElementById('operator-filter').value;
+            
+            const platforms = new Set();
+            const glassSpecs = new Set();
+            const operators = new Set();
+            const regions = new Set(); // normalized 'VIC'/'QLD'
+
+            // fallback operator list (keeps original hardcoded options available)
+            const FALLBACK_OPERATORS = [
+                'Sliding Door',
+                'Sliding Window',
+                'Awning Window',
+                'Double Hung Window',
+                'Louvre',
+                'Fixed Window'
+            ];
+
+            // helper: normalize VIC/QLD values from row
+            function normalizeRegionValue(raw) {
+                if (raw === undefined || raw === null) return null;
+                const s = raw.toString().trim();
+                if (s === '') return null;
+                const n = parseFloat(s);
+                if (!isNaN(n)) {
+                    if (n >= 2) return 'VIC';
+                    if (n <= 2) return 'QLD';
+                }
+                const up = s.toUpperCase();
+                if (up.includes('VIC') || up.includes('VICTORIA')) return 'VIC';
+                if (up.includes('QLD') || up.includes('QUEENSLAND')) return 'QLD';
+                return null;
+            }
+
+            // iterate rows and collect possible values where row matches current selections
+            if (table1Data.length > 1) {
+                for (let i = 1; i < table1Data.length; i++) {
+                    const row = table1Data[i];
+                    const rowPlatform = (row[TABLE1_COLUMNS['Platform']] || '').toString().trim();
+                    const rowGlassSpec = (row[TABLE1_COLUMNS['GlassSpecification']] || '').toString().trim();
+                    const rowOperator = (row[TABLE1_COLUMNS['Operator Type']] || '').toString().trim();
+                    const rowRegionRaw = row[TABLE1_COLUMNS['VIC / QLD']];
+                    const rowRegionNorm = normalizeRegionValue(rowRegionRaw);
+
+                    // Check match against currently selected filters (wildcards allowed)
+                    const regionMatchBase = (!regionSel || regionSel === 'ALL' || (regionSel === 'VIC' ? rowRegionNorm === 'VIC' : regionSel === 'QLD' ? rowRegionNorm === 'QLD' : true));
+
+                    const matchesForPlatform = regionMatchBase
+                        && (!glassSpecSel || rowGlassSpec === glassSpecSel)
+                        && (!operatorSel || rowOperator === operatorSel);
+
+                    const matchesForGlass = regionMatchBase
+                        && (!platformSel || rowPlatform === platformSel)
+                        && (!operatorSel || rowOperator === operatorSel);
+
+                    const matchesForOperator = regionMatchBase
+                        && (!platformSel || rowPlatform === platformSel)
+                        && (!glassSpecSel || rowGlassSpec === glassSpecSel);
+
+                    const matchesForRegion = (!platformSel || rowPlatform === platformSel)
+                        && (!glassSpecSel || rowGlassSpec === glassSpecSel)
+                        && (!operatorSel || rowOperator === operatorSel);
+
+                    if (matchesForPlatform && rowPlatform) platforms.add(rowPlatform);
+                    if (matchesForGlass && rowGlassSpec) glassSpecs.add(rowGlassSpec);
+                    if (matchesForOperator && rowOperator) operators.add(rowOperator);
+                    if (matchesForRegion && rowRegionNorm) regions.add(rowRegionNorm);
+                }
+            }
+
+            // Ensure fallback operator options are included
+            FALLBACK_OPERATORS.forEach(o => {
+                if (o && o.toString().trim() !== '') operators.add(o.toString().trim());
+            });
+
+            // Helper to set select options preserving current value where possible (case-insensitive)
+            function setOptions(selectId, valuesArray, defaultLabel) {
+                const sel = document.getElementById(selectId);
+                if (!sel) return;
+                const current = sel.value ? sel.value.toString().trim() : '';
+                // produce case-insensitive unique, preserve first-seen casing
+                const map = new Map();
+                valuesArray.forEach(v => {
+                    if (v === undefined || v === null) return;
+                    const s = v.toString().trim();
+                    if (s === '') return;
+                    const key = s.toLowerCase();
+                    if (!map.has(key)) map.set(key, s);
+                });
+                const cleaned = Array.from(map.values()).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+                sel.innerHTML = '';
+                const emptyOpt = document.createElement('option');
+                emptyOpt.value = '';
+                emptyOpt.textContent = defaultLabel;
+                sel.appendChild(emptyOpt);
+                cleaned.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v;
+                    opt.textContent = v;
+                    sel.appendChild(opt);
+                });
+                // restore selection if still available (case-insensitive)
+                if (current) {
+                    const match = cleaned.find(x => x.toLowerCase() === current.toLowerCase());
+                    if (match) {
+                        sel.value = match;
+                    } else {
+                        sel.value = '';
+                    }
+                } else {
+                    sel.value = '';
+                }
+            }
+
+            // Update platform, glassSpec, operator selects
+            setOptions('platform-filter', Array.from(platforms), 'Select Platform...');
+            setOptions('glass-spec-filter', Array.from(glassSpecs), 'Select Glass Spec...');
+            setOptions('operator-filter', Array.from(operators), 'Select Operator Type...');
+
+            // Region: always include 'ALL' and any detected regions
+            const regionSelect = document.getElementById('region-filter');
+            if (regionSelect) {
+                const prevRegion = regionSelect.value;
+                regionSelect.innerHTML = '';
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = 'Select Region...';
+                regionSelect.appendChild(defaultOpt);
+                const allOpt = document.createElement('option');
+                allOpt.value = 'ALL';
+                allOpt.textContent = 'All Regions';
+                regionSelect.appendChild(allOpt);
+                if (regions.has('QLD')) {
+                    const optQ = document.createElement('option');
+                    optQ.value = 'QLD';
+                    optQ.textContent = 'Queensland';
+                    regionSelect.appendChild(optQ);
+                }
+                if (regions.has('VIC')) {
+                    const optV = document.createElement('option');
+                    optV.value = 'VIC';
+                    optV.textContent = 'Victoria';
+                    regionSelect.appendChild(optV);
+                }
+                // restore region selection if still present
+                if (prevRegion && Array.from(regionSelect.options).some(o => o.value === prevRegion)) {
+                    regionSelect.value = prevRegion;
+                } else {
+                    regionSelect.value = '';
+                }
+            }
+        }
+
+        /**
+         * Update Good Better Best filters (product range & operator) based on region selection.
+         */
+        function updateGBBFilters() {
+            const regionSel = document.getElementById('gbb-region-filter').value;
+            const productSel = document.getElementById('gbb-product-range').value;
+            const operatorSel = document.getElementById('gbb-operator').value;
+
+            const productRanges = new Set();
+            const operators = new Set();
+
+            function normalizeRegionValue(raw) {
+                if (raw === undefined || raw === null) return null;
+                const s = raw.toString().trim();
+                const n = parseFloat(s);
+                if (!isNaN(n)) {
+                    if (n > 2) return 'VIC';
+                    if (n <= 2) return 'QLD';
+                }
+                const up = s.toUpperCase();
+                if (up.includes('VIC') || up.includes('VICTORIA')) return 'VIC';
+                if (up.includes('QLD') || up.includes('QUEENSLAND')) return 'QLD';
+                return null;
+            }
+
+            if (table1Data.length > 1) {
+                for (let i = 1; i < table1Data.length; i++) {
+                    const row = table1Data[i];
+                    const pr = row[TABLE1_COLUMNS['Product Range']] ? row[TABLE1_COLUMNS['Product Range']].toString().trim() : '';
+                    const op = row[TABLE1_COLUMNS['Operator Type']] ? row[TABLE1_COLUMNS['Operator Type']].toString().trim() : '';
+                    const regionRaw = row[TABLE1_COLUMNS['VIC / QLD']];
+                    const regionNorm = normalizeRegionValue(regionRaw);
+
+                    // apply region filter if set (ALL = wildcard)
+                    if (regionSel && regionSel !== 'ALL') {
+                        if (regionSel === 'VIC' && regionNorm !== 'VIC') continue;
+                        if (regionSel === 'QLD' && regionNorm !== 'QLD') continue;
+                    }
+
+                    if (pr) productRanges.add(pr);
+                    if (op) operators.add(op);
+                }
+            }
+
+            // helper to set select options preserving selection
+            function setOptionsLocal(selectId, valuesArray, defaultLabel) {
+                const sel = document.getElementById(selectId);
+                const current = sel.value;
+                sel.innerHTML = '';
+                const emptyOpt = document.createElement('option');
+                emptyOpt.value = '';
+                emptyOpt.textContent = defaultLabel;
+                sel.appendChild(emptyOpt);
+                Array.from(valuesArray).sort().forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v;
+                    opt.textContent = v;
+                    sel.appendChild(opt);
+                });
+                if (current && Array.from(valuesArray).includes(current)) {
+                    sel.value = current;
+                } else {
+                    sel.value = '';
+                }
+            }
+
+            setOptionsLocal('gbb-product-range', Array.from(productRanges), 'Select Product Range...');
+            setOptionsLocal('gbb-operator', Array.from(operators), 'Select Operator Type...');
+        }
+
+        /**
+         * Show specific tab
+         */
+        function showTab(tabId) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab
+            const targetTab = document.getElementById(tabId);
+            targetTab.classList.add('active');
+            
+            // Find and activate the correct button
+            const targetButton = Array.from(buttons).find(btn => 
+                btn.getAttribute('onclick').includes(tabId)
+            );
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
+
+            // Auto-run proxy search when Proxy Finder tab is shown
+            if (tabId === 'proxy-finder') {
+                searchProxyFinder();
+            }
+        }
+
+        /**
+         * MENU 1: Proxy Finder (A&L WERS code to FR5 Proxy values)
+         * Dropdown: Column 2 (Window Id) from Table1
+         * Outputs: U Value, SHGC, 5% Min/Max, Cooling, Heating, Description, FR5 Proxy, FR5 U, FR5 SHGC
+         */
+        function searchProxyFinder() {
+            const selectedRowIndex = document.getElementById('wers-code-select').value;
+            const resultsDiv = document.getElementById('proxy-results');
+            const contentDiv = document.getElementById('proxy-results-content');
+            
+            // If no data or no selection, hide results and return (avoid alerts during auto-run)
+            if (!selectedRowIndex || table1Data.length === 0) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            const rowIndex = parseInt(selectedRowIndex);
+            const row = table1Data[rowIndex];
+            
+            if (row) {
+                // Extract A&L WERS data from Table1 using column mappings
+                const wersCode = row[TABLE1_COLUMNS['Window Id']] || '';
+                const uValue = row[TABLE1_COLUMNS['Uw']] || '';
+                const shgc = row[TABLE1_COLUMNS['SHGCw']] || '';
+                const cooling = row[TABLE1_COLUMNS['Cooling*']] || '';
+                const heating = row[TABLE1_COLUMNS['Heating*']] || '';
+                const frameDescription = row[TABLE1_COLUMNS['Frame Description']] || '';
+                const fr5WindowId = row[TABLE1_COLUMNS['FR5 Window Id']] || '';
+                const proxyUw = row[TABLE1_COLUMNS['Proxy Uw']] || '';
+                const proxySHGCw = row[TABLE1_COLUMNS['Proxy SHGCw']] || '';
+                // new: extract glass info (fallbacks)
+                const glassVal = row[TABLE1_COLUMNS['Glass']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['GlassSpecification']] || '';
+
+                // VLOOKUP equivalent: Find FR5 data from Table2 using FR5 Window Id
+                let fr5U = '';
+                let fr5SHGC = '';
+                let fr5Description = '';
+                
+                if (fr5WindowId && table2Data.length > 0) {
+                    for (let i = 1; i < table2Data.length; i++) {
+                        const table2Row = table2Data[i];
+                        if (table2Row[TABLE2_COLUMNS['FR5 Window Id']] && 
+                            table2Row[TABLE2_COLUMNS['FR5 Window Id']].toString().trim() === fr5WindowId.toString().trim()) {
+                            fr5U = table2Row[TABLE2_COLUMNS['Uw']] || '';
+                            fr5SHGC = table2Row[TABLE2_COLUMNS['SHGCw']] || '';
+                            fr5Description = table2Row[TABLE2_COLUMNS['Description']] || '';
+                            break;
+                        }
+                    }
+                }
+                
+                // Calculate 5% Min/Max for SHGC
+                const shgcNum = parseFloat(shgc);
+                const fivePercentMin = shgcNum ? (shgcNum * 0.95).toFixed(4) : '';
+                const fivePercentMax = shgcNum ? (shgcNum * 1.05).toFixed(4) : '';
+                
+                contentDiv.innerHTML = `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>A&L WERS Value</th>
+                                <th>FR5 Proxy Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>WERS Code</strong></td>
+                                <td>${wersCode}</td>
+                                <td>${fr5WindowId}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>U-Value (W/m²K)</strong></td>
+                                <td>${uValue}</td>
+                                <td>${fr5U}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SHGC</strong></td>
+                                <td>${shgc}</td>
+                                <td>${fr5SHGC}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5% Min (SHGC)</strong></td>
+                                <td>${fivePercentMin}</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5% Max (SHGC)</strong></td>
+                                <td>${fivePercentMax}</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cooling Performance</strong></td>
+                                <td>${renderStars(cooling, '#3498db')}</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Heating Performance</strong></td>
+                                <td>${renderStars(heating, '#e74c3c')}</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Description</strong></td>
+                                <td>${frameDescription}</td>
+                                <td>${fr5Description}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Glass</strong></td>
+                                <td colspan="2">${glassVal}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+                resultsDiv.style.display = 'block';
+            } else {
+                contentDiv.innerHTML = '<div class="no-data">No data found for selected WERS code.</div>';
+                resultsDiv.style.display = 'block';
+            }
+        }
+
+        /**
+         * MENU 2: Window Code Finder (Find A&L WERS code by product specifications)
+         * Filters: Region, Platform, Glass Spec, Operator Type
+         * Behaviour: Empty filter values are treated as wildcards. Calling this on any filter change
+         * will display results immediately filtered by the selected fields.
+         */
+        function searchWindowCode() {
+            const region = document.getElementById('region-filter').value;
+            const platform = document.getElementById('platform-filter').value;
+            const glassSpec = document.getElementById('glass-spec-filter').value;
+            const operator = document.getElementById('operator-filter').value;
+            
+            const resultsDiv = document.getElementById('window-code-results');
+            const contentDiv = document.getElementById('window-code-results-content');
+            
+            // No required fields: empty values act as wildcards.
+            const results = [];
+            if (table1Data.length > 1) {
+                for (let i = 1; i < table1Data.length; i++) {
+                    const row = table1Data[i];
+                    
+                    const rowRegionRaw = row[TABLE1_COLUMNS['VIC / QLD']];
+                    const rowRegion = rowRegionRaw !== undefined && rowRegionRaw !== null ? rowRegionRaw.toString().trim() : '';
+                    const rowRegionNum = parseFloat(rowRegion);
+                    const rowPlatform = row[TABLE1_COLUMNS['Platform']] ? row[TABLE1_COLUMNS['Platform']].toString() : '';
+                    const rowGlassSpec = row[TABLE1_COLUMNS['GlassSpecification']] ? row[TABLE1_COLUMNS['GlassSpecification']].toString() : '';
+                    const rowOperator = row[TABLE1_COLUMNS['Operator Type']] ? row[TABLE1_COLUMNS['Operator Type']].toString() : '';
+                    // new: extract glass for display
+                    const rowGlass = row[TABLE1_COLUMNS['Glass']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['GlassSpecification']] || '';
+                    
+                    // Region matching: if region filter empty -> wildcard.
+                    let regionMatch = true;
+                    if (region && region !== 'ALL') {
+                        if (region === 'VIC') {
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum >= 2) : (rowRegion.toUpperCase().includes('VIC') || rowRegion.toUpperCase().includes('VICTORIA'));
+                        } else if (region === 'QLD') {
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum <= 2) : (rowRegion.toUpperCase().includes('QLD') || rowRegion.toUpperCase().includes('QUEENSLAND'));
+                        } else {
+                            regionMatch = rowRegion.toUpperCase().includes(region.toUpperCase());
+                        }
+                    }
+
+                    // Other filters: empty = wildcard, otherwise exact match
+                    const platformMatch = !platform || rowPlatform === platform;
+                    const glassSpecMatch = !glassSpec || rowGlassSpec === glassSpec;
+                    const operatorMatch = !operator || rowOperator === operator;
+                    
+                    if (regionMatch && platformMatch && glassSpecMatch && operatorMatch) {
+                        results.push({
+                            wersCode: row[TABLE1_COLUMNS['Window Id']],
+                            frameDesc: row[TABLE1_COLUMNS['Frame Description']],
+                            uw: row[TABLE1_COLUMNS['Uw']],
+                            shgc: row[TABLE1_COLUMNS['SHGCw']],
+                            cooling: row[TABLE1_COLUMNS['Cooling*']],
+                            heating: row[TABLE1_COLUMNS['Heating*']],
+                            glass: rowGlass
+                        });
+                    }
+                }
+            }
+            
+            // Display results
+            if (results.length > 0) {
+                let tableHTML = `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>WERS Code</th>
+                                <th>Description</th>
+                                <th>Glass</th>
+                                <th>U-Value</th>
+                                <th>SHGC</th>
+                                <th>Cooling</th>
+                                <th>Heating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                results.forEach(result => {
+                    tableHTML += `
+                        <tr>
+                            <td>${result.wersCode}</td>
+                            <td>${result.frameDesc}</td>
+                            <td>${result.glass}</td>
+                            <td>${result.uw}</td>
+                            <td>${result.shgc}</td>
+                            <td>${renderStars(result.cooling, '#3498db')}</td>
+                            <td>${renderStars(result.heating, '#e74c3c')}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                contentDiv.innerHTML = tableHTML;
+            } else {
+                contentDiv.innerHTML = '<div class="no-data">No matching window codes found for your criteria.</div>';
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        /**
+         * Search VIC Reverse Proxy data (instant from text input)
+         * Find A&L WERS codes from FR5 proxy codes for Victoria-specific applications
+         * Results use the same table layout as Window Code tab (includes renderStars)
+         */
+        function searchVIC() {
+            const input = document.getElementById('vic-proxy-filter').value.trim();
+            const resultsDiv = document.getElementById('vic-results');
+            const contentDiv = document.getElementById('vic-results-content');
+            
+            if (!input || table2Data.length === 0 || table1Data.length === 0) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            const codeUpper = input.toString().trim().toUpperCase();
+
+            // Find Table2 rows where "Window Id" (TABLE2_COLUMNS['Window Id'] = 0) matches the input
+            const matchedTable2 = [];
+            for (let i = 1; i < table2Data.length; i++) {
+                const t2 = table2Data[i];
+                const t2WindowId = t2[TABLE2_COLUMNS['Window Id']] ? t2[TABLE2_COLUMNS['Window Id']].toString().trim().toUpperCase() : '';
+                if (t2WindowId === codeUpper) {
+                    matchedTable2.push({ row: t2, index: i });
+                }
+            }
+
+            if (matchedTable2.length === 0) {
+                contentDiv.innerHTML = `<div class="no-data">No entry found in Table2 for Window Id "${input}".</div>`;
+                resultsDiv.style.display = 'block';
+                return;
+            }
+
+            // For each matched Table2 row, find matching Table1 rows by the criteria described
+            // We'll accumulate a combined results list (include source Uw/SHGCw for display)
+            const combinedResults = [];
+
+            matchedTable2.forEach(t2info => {
+                const t2 = t2info.row;
+                const t2Uw = parseFloat(t2[TABLE2_COLUMNS['Uw']]);
+                const t2Shgc = parseFloat(t2[TABLE2_COLUMNS['SHGCw']]);
+                const t2Operator = t2[TABLE2_COLUMNS['Operator Type']] ? t2[TABLE2_COLUMNS['Operator Type']].toString().trim() : '';
+                if (isNaN(t2Uw) || isNaN(t2Shgc)) {
+                    // still display message but skip filtering if values invalid
+                    return;
+                }
+                const shgcMin = t2Shgc * 0.95;
+
+                for (let j = 1; j < table1Data.length; j++) {
+                    const row = table1Data[j];
+                    const rowUwNum = parseFloat(row[TABLE1_COLUMNS['Uw']]);
+                    const rowShgcNum = parseFloat(row[TABLE1_COLUMNS['SHGCw']]);
+                    const rowOperator = row[TABLE1_COLUMNS['Operator Type']] ? row[TABLE1_COLUMNS['Operator Type']].toString().trim() : '';
+                    const rowRegionRaw = row[TABLE1_COLUMNS['VIC / QLD']];
+                    // new: extract glass for display
+                    const rowGlass = row[TABLE1_COLUMNS['Glass']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['GlassSpecification']] || '';
+
+                    // Region value numeric check (VIC / QLD >= 2) or textual fallback to 'VIC'
+                    let regionOk = false;
+                    if (rowRegionRaw !== undefined && rowRegionRaw !== null) {
+                        const rn = parseFloat(rowRegionRaw);
+                        if (!isNaN(rn)) {
+                            regionOk = rn >= 2;
+                        } else {
+                            const up = rowRegionRaw.toString().toUpperCase();
+                            regionOk = up.includes('VIC') || up.includes('VICTORIA');
+                        }
+                    }
+
+                    // Apply filters: Uw <= t2Uw, SHGC >= shgcMin, same operator, regionOk true
+                    const uwOk = !isNaN(rowUwNum) ? (rowUwNum <= t2Uw) : false;
+                    const shgcOk = !isNaN(rowShgcNum) ? (rowShgcNum >= shgcMin) : false;
+                    const opOk = (t2Operator === '') ? true : (rowOperator === t2Operator);
+
+                    if (uwOk && shgcOk && opOk && regionOk) {
+                        combinedResults.push({
+                            sourceWindowId: t2[TABLE2_COLUMNS['Window Id']],
+                            sourceUw: t2Uw,
+                            sourceShgc: t2Shgc,
+                            wersCode: row[TABLE1_COLUMNS['Window Id']],
+                            frameDesc: row[TABLE1_COLUMNS['Frame Description']],
+                            uw: row[TABLE1_COLUMNS['Uw']],
+                            shgc: row[TABLE1_COLUMNS['SHGCw']],
+                            cooling: row[TABLE1_COLUMNS['Cooling*']],
+                            heating: row[TABLE1_COLUMNS['Heating*']],
+                            operator: rowOperator,
+                            glass: rowGlass
+                        });
+                    }
+                }
+            }); // end matchedTable2.forEach
+
+            // Render output: show matched Table2 Uw/SHGCw and then the filtered Table1 results (same format as Window Code tab)
+            if (combinedResults.length > 0) {
+                // Use the first matched table2 row's Uw/SHGC for the header (they are same-window-id rows)
+                const headerUw = combinedResults[0].sourceUw;
+                const headerShgc = combinedResults[0].sourceShgc;
+
+                let html = `<div style="margin-bottom:12px;"><strong>Table2 (Window Id):</strong> ${input} — Uw: ${headerUw}, SHGCw: ${headerShgc}</div>`;
+                html += `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>WERS Code</th>
+                                <th>Description</th>
+                                <th>Glass</th>
+                                <th>U-Value</th>
+                                <th>SHGC</th>
+                                <th>Cooling</th>
+                                <th>Heating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                combinedResults.forEach(r => {
+                    html += `
+                        <tr>
+                            <td>${r.wersCode}</td>
+                            <td>${r.frameDesc}</td>
+                            <td>${r.glass}</td>
+                            <td>${r.uw}</td>
+                            <td>${r.shgc}</td>
+                            <td>${renderStars(r.cooling, '#3498db')}</td>
+                            <td>${renderStars(r.heating, '#e74c3c')}</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table>`;
+                contentDiv.innerHTML = html;
+            } else {
+                contentDiv.innerHTML = `<div class="no-data">No matching A&L Window Ids found for criteria (Uw ≤ Table2.Uw, SHGC ≥ 95% of Table2.SHGCw, same operator, VIC/QLD ≥ 2).</div>`;
+            }
+
+            resultsDiv.style.display = 'block';
+        }
+        /**
+         * Search QLD Reverse Proxy data (instant from text input)
+         * Find A&L WERS codes from FR5 proxy codes for Queensland-specific applications
+         * Results use the same table layout as Window Code tab (includes renderStars)
+         */
+        function searchQLD() {
+            const input = document.getElementById('qld-proxy-filter').value.trim();
+            const resultsDiv = document.getElementById('qld-results');
+            const contentDiv = document.getElementById('qld-results-content');
+            
+            if (!input || table2Data.length === 0 || table1Data.length === 0) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            const codeUpper = input.toString().trim().toUpperCase();
+
+            // Find Table2 rows where "Window Id" (TABLE2_COLUMNS['Window Id'] = 0) matches the input
+            const matchedTable2 = [];
+            for (let i = 1; i < table2Data.length; i++) {
+                const t2 = table2Data[i];
+                const t2WindowId = t2[TABLE2_COLUMNS['Window Id']] ? t2[TABLE2_COLUMNS['Window Id']].toString().trim().toUpperCase() : '';
+                if (t2WindowId === codeUpper) {
+                    matchedTable2.push({ row: t2, index: i });
+                }
+            }
+
+            if (matchedTable2.length === 0) {
+                contentDiv.innerHTML = `<div class="no-data">No entry found in Table2 for Window Id "${input}".</div>`;
+                resultsDiv.style.display = 'block';
+                return;
+            }
+
+            // For each matched Table2 row, find matching Table1 rows by the criteria described
+            // We'll accumulate a combined results list (include source Uw/SHGCw for display)
+            const combinedResults = [];
+
+            matchedTable2.forEach(t2info => {
+                const t2 = t2info.row;
+                const t2Uw = parseFloat(t2[TABLE2_COLUMNS['Uw']]);
+                const t2Shgc = parseFloat(t2[TABLE2_COLUMNS['SHGCw']]);
+                const t2Operator = t2[TABLE2_COLUMNS['Operator Type']] ? t2[TABLE2_COLUMNS['Operator Type']].toString().trim() : '';
+                if (isNaN(t2Uw) || isNaN(t2Shgc)) {
+                    // still display message but skip filtering if values invalid
+                    return;
+                }
+                const shgcMax = t2Shgc * 1.05;
+
+                for (let j = 1; j < table1Data.length; j++) {
+                    const row = table1Data[j];
+                    const rowUwNum = parseFloat(row[TABLE1_COLUMNS['Uw']]);
+                    const rowShgcNum = parseFloat(row[TABLE1_COLUMNS['SHGCw']]);
+                    const rowOperator = row[TABLE1_COLUMNS['Operator Type']] ? row[TABLE1_COLUMNS['Operator Type']].toString().trim() : '';
+                    const rowRegionRaw = row[TABLE1_COLUMNS['VIC / QLD']];
+                    // new: extract glass for display
+                    const rowGlass = row[TABLE1_COLUMNS['Glass']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['GlassSpecification']] || '';
+
+                    // Region value numeric check (VIC / QLD <= 2) or textual fallback to 'QLD'
+                    let regionOk = false;
+                    if (rowRegionRaw !== undefined && rowRegionRaw !== null) {
+                        const rn = parseFloat(rowRegionRaw);
+                        if (!isNaN(rn)) {
+                            regionOk = rn <= 2;
+                        } else {
+                            const up = rowRegionRaw.toString().toUpperCase();
+                            regionOk = up.includes('QLD') || up.includes('QUEENSLAND');
+                        }
+                    }
+
+                    // Apply filters: Uw <= t2Uw, SHGC >= shgcMin, same operator, regionOk true
+                    const uwOk = !isNaN(rowUwNum) ? (rowUwNum <= t2Uw) : false;
+                    const shgcOk = !isNaN(rowShgcNum) ? (rowShgcNum <= shgcMax) : false;
+                    const opOk = (t2Operator === '') ? true : (rowOperator === t2Operator);
+
+                    if (uwOk && shgcOk && opOk && regionOk) {
+                        combinedResults.push({
+                            sourceWindowId: t2[TABLE2_COLUMNS['Window Id']],
+                            sourceUw: t2Uw,
+                            sourceShgc: t2Shgc,
+                            wersCode: row[TABLE1_COLUMNS['Window Id']],
+                            frameDesc: row[TABLE1_COLUMNS['Frame Description']],
+                            uw: row[TABLE1_COLUMNS['Uw']],
+                            shgc: row[TABLE1_COLUMNS['SHGCw']],
+                            cooling: row[TABLE1_COLUMNS['Cooling*']],
+                            heating: row[TABLE1_COLUMNS['Heating*']],
+                            operator: rowOperator,
+                            glass: rowGlass
+                        });
+                    }
+                }
+            }); // end matchedTable2.forEach
+            // Render output: show matched Table2 Uw/SHGCw and then the filtered Table1 results (same format as Window Code tab)
+            if (combinedResults.length > 0) {
+                // Use the first matched table2 row's Uw/SHGC for the header (they are same-window-id rows)
+                const headerUw = combinedResults[0].sourceUw;
+                const headerShgc = combinedResults[0].sourceShgc;
+
+                let html = `<div style="margin-bottom:12px;"><strong>Table2 (Window Id):</strong> ${input} — Uw: ${headerUw}, SHGCw: ${headerShgc}</div>`;
+                html += `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>WERS Code</th>
+                                <th>Description</th>
+                                <th>Glass</th>
+                                <th>U-Value</th>
+                                <th>SHGC</th>
+                                <th>Cooling</th>
+                                <th>Heating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                combinedResults.forEach(r => {
+                    html += `
+                        <tr>
+                            <td>${r.wersCode}</td>
+                            <td>${r.frameDesc}</td>
+                            <td>${r.glass}</td>
+                            <td>${r.uw}</td>
+                            <td>${r.shgc}</td>
+                            <td>${renderStars(r.cooling, '#3498db')}</td>
+                            <td>${renderStars(r.heating, '#e74c3c')}</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table>`;
+                contentDiv.innerHTML = html;
+            } else {
+                contentDiv.innerHTML = `<div class="no-data">No matching A&L Window Ids found for criteria (Uw ≤ Table2.Uw, SHGC ≥ 95% of Table2.SHGCw, same operator, QLD/VIC ≤ 2).</div>`;
+            }
+            resultsDiv.style.display = 'block';
+        }
+        
+        /**
+         * MENU 5: Good Better Best recommendations
+         * Filter by product range, operator and region. Empty filters are wildcards.
+         */
+        function searchGoodBetterBest() {
+            const region = document.getElementById('gbb-region-filter').value;
+            const productRange = document.getElementById('gbb-product-range').value;
+            const operator = document.getElementById('gbb-operator').value;
+            const resultsDiv = document.getElementById('gbb-results');
+            const contentDiv = document.getElementById('gbb-results-content');
+
+            const results = [];
+            if (table1Data.length > 1) {
+                for (let i = 1; i < table1Data.length; i++) {
+                    const row = table1Data[i];
+
+                    // GBB tier must be numeric and strictly less than 6
+                    const gbbNum = parseInt(row[TABLE1_COLUMNS['GBB']]);
+                    if (isNaN(gbbNum) || !(gbbNum < 6)) continue;
+
+                    const rowRegionRaw = row[TABLE1_COLUMNS['VIC / QLD']];
+                    const rowRegion = rowRegionRaw !== undefined && rowRegionRaw !== null ? rowRegionRaw.toString().trim() : '';
+                    const rowRegionNum = parseFloat(rowRegion);
+                    let regionMatch = true;
+                    if (region && region !== 'ALL') {
+                        if (region === 'VIC') {
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum >= 2) : (rowRegion.toUpperCase().includes('VIC') || rowRegion.toUpperCase().includes('VICTORIA'));
+                        } else if (region === 'QLD') {
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum <= 2) : (rowRegion.toUpperCase().includes('QLD') || rowRegion.toUpperCase().includes('QUEENSLAND'));
+                        }
+                    }
+
+                    const rowProduct = row[TABLE1_COLUMNS['Product Range']] ? row[TABLE1_COLUMNS['Product Range']].toString() : '';
+                    const rowOperator = row[TABLE1_COLUMNS['Operator Type']] ? row[TABLE1_COLUMNS['Operator Type']].toString() : '';
+                    // new: extract glass for display
+                    const rowGlass = row[TABLE1_COLUMNS['Glass']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['GlassSpecification']] || '';
+                    const productMatch = !productRange || rowProduct === productRange;
+                    const operatorMatch = !operator || rowOperator === operator;
+
+                    if (regionMatch && productMatch && operatorMatch) {
+                        results.push({
+                            gbb: gbbNum,
+                            wersCode: row[TABLE1_COLUMNS['Window Id']],
+                            frameDesc: row[TABLE1_COLUMNS['Frame Description']],
+                            uw: row[TABLE1_COLUMNS['Uw']],
+                            shgc: row[TABLE1_COLUMNS['SHGCw']],
+                            cooling: row[TABLE1_COLUMNS['Cooling*']],
+                            heating: row[TABLE1_COLUMNS['Heating*']],
+                            operator: rowOperator,
+                            productRange: rowProduct,
+                            glass: rowGlass
+                        });
+                    }
+                }
+            }
+
+            if (results.length > 0) {
+                let tableHTML = `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Tier</th>
+                                <th>WERS Code</th>
+                                <th>Description</th>
+                                <th>Glass</th>
+                                <th>U-Value</th>
+                                <th>SHGC</th>
+                                <th>Cooling</th>
+                                <th>Heating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                results.forEach(result => {
+                    tableHTML += `
+                        <tr>
+                            <td>${result.gbb}</td>
+                            <td>${result.wersCode}</td>
+                            <td>${result.frameDesc}</td>
+                            <td>${result.glass}</td>
+                            <td>${result.uw}</td>
+                            <td>${result.shgc}</td>
+                            <td>${renderStars(result.cooling, '#3498db')}</td>
+                            <td>${renderStars(result.heating, '#e74c3c')}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+
+                contentDiv.innerHTML = tableHTML;
+            } else {
+                contentDiv.innerHTML = `<div class="no-data">No recommendations found for your criteria.</div>`;
+            }
+
+            resultsDiv.style.display = 'block';
+        }
+
+        /**
+         * URL Integration Points for Future Implementation:
+         * 
+         * 1. Replace loadExcelData() with API calls:
+         *    - fetch('/api/wers-data') for WERS database
+         *    - fetch('/api/vic-data') for VIC proxy data
+         *    - fetch('/api/qld-data') for QLD proxy data
+         * 
+         * 2. Replace search functions with server-side queries:
+         *    - searchWERS(): POST /api/search/wers with WERS code
+         *    - searchVIC(): POST /api/search/vic with filter parameters
+         *    - searchQLD(): POST /api/search/qld with filter parameters
+         * 
+         * 3. Add error handling for network requests
+         * 4. Implement caching for better performance
+         * 5. Add authentication if required by target website
+         */
+        
+        /**
+         * Render star ratings (up to 5 stars). Values are rounded to nearest 0.5.
+         * color: hex string for filled portion (e.g. '#3498db' or '#e74c3c')
+         */
+        function renderStars(value, color) {
+            if (value === '' || value === null || isNaN(parseFloat(value))) return '<span class="no-data">-</span>';
+            const num = parseFloat(value);
+            const rounded = Math.round(num * 2) / 2; // nearest 0.5
+            const fullCount = Math.floor(rounded);
+            const hasHalf = (rounded - fullCount) === 0.5;
+            const total = 5;
+            const uid = 'clip_' + Math.random().toString(36).slice(2, 9);
+
+            let html = `<span class="star-rating" aria-hidden="true" title="${value}">`;
+
+            for (let i = 0; i < fullCount; i++) {
+                html += fullStarSVG(color);
+            }
+            if (hasHalf) {
+                html += halfStarSVG(color, uid);
+            }
+            for (let i = fullCount + (hasHalf ? 1 : 0); i < total; i++) {
+                html += emptyStarSVG();
+            }
+
+            html += `<span class="star-label">${value}</span>`;
+            html += `</span>`;
+            return html;
+        }
+
+        function fullStarSVG(color) {
+            const d = "M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.402 8.172L12 18.897l-7.336 3.869 1.402-8.172L.132 9.21l8.2-1.192z";
+            return `<svg class="star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="${color}" d="${d}"/></svg>`;
+        }
+
+        function emptyStarSVG() {
+            const d = "M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.402 8.172L12 18.897l-7.336 3.869 1.402-8.172L.132 9.21l8.2-1.192z";
+            return `<svg class="star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path class="star-empty" d="${d}"/></svg>`;
+        }
+
+        function halfStarSVG(color, uid) {
+            // Use clipPath to fill left half with color
+            const d = "M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.402 8.172L12 18.897l-7.336 3.869 1.402-8.172L.132 9.21l8.2-1.192z";
+            return `
+                <svg class="star-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs>
+                        <clipPath id="${uid}">
+                            <rect x="0" y="0" width="50%" height="100%"></rect>
+                        </clipPath>
+                    </defs>
+                    <path class="star-empty" d="${d}"/>
+                    <path fill="${color}" d="${d}" clip-path="url(#${uid})"/>
+                </svg>
+            `;
+        }
+    </script>
+</body>
+</html>
