@@ -1498,7 +1498,7 @@
                         if (region === 'VIC') {
                             regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum > 2) : (rowRegion.toUpperCase().includes('VIC') || rowRegion.toUpperCase().includes('VICTORIA'));
                         } else if (region === 'QLD') {
-                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum < 2) : (rowRegion.toUpperCase().includes('QLD') || rowRegion.toUpperCase().includes('QUEENSLAND'));
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum <= 2) : (rowRegion.toUpperCase().includes('QLD') || rowRegion.toUpperCase().includes('QUEENSLAND'));
                         }
                     }
 
