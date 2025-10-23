@@ -321,7 +321,7 @@
                     <div class="form-group">
                         <label for="region-filter">Region:</label>
                         <select id="region-filter" class="form-control" onchange="updateWindowCodeFilters(); searchWindowCode();">
-                            <option value="">Select Region...</option>
+<!--                             <option value="">Select Region...</option> -->
                             <option value="ALL">All Regions</option>
                             <option value="QLD">Queensland</option>
                             <option value="VIC">Victoria</option>
@@ -373,6 +373,7 @@
                 <div class="info-card">
                     <h3>Reverse Proxy Victoria</h3>
                     <p>Find A&L WERS codes from FR5 proxy codes for Victoria-specific applications.</p>
+                    <p>The results are products that perform better than or meet the required standards.</p>
                 </div>
                 
                 <div class="search-section">
@@ -394,6 +395,7 @@
                 <div class="info-card">
                     <h3>Reverse Proxy Queensland</h3>
                     <p>Find A&L WERS codes from FR5 proxy codes for Queensland-specific applications.</p>
+                    <p>The results are products that perform better than or meet the required standards.</p>
                 </div>
                 
                 <div class="search-section">
@@ -414,7 +416,7 @@
             <div id="good-better-best" class="tab-content">
 				<div class="info-card">
 					<h3>Good Better Best Recommendations</h3>
-					<p>Get A&L's recommended window solutions based on performance tiers.</p>
+					<p>A&L's recommended window solutions</p>
 				</div>
 				
 				<div class="search-section">
@@ -422,7 +424,6 @@
 					<div class="form-group">
 						<label for="gbb-region-filter">Region:</label>
 						<select id="gbb-region-filter" class="form-control" onchange="updateGBBFilters(); searchGoodBetterBest();">
-							<option value="">Select Region...</option>
 							<option value="ALL">All Regions</option>
 							<option value="QLD">Queensland</option>
 							<option value="VIC">Victoria</option>
@@ -1495,9 +1496,9 @@
                     let regionMatch = true;
                     if (region && region !== 'ALL') {
                         if (region === 'VIC') {
-                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum >= 2) : (rowRegion.toUpperCase().includes('VIC') || rowRegion.toUpperCase().includes('VICTORIA'));
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum > 2) : (rowRegion.toUpperCase().includes('VIC') || rowRegion.toUpperCase().includes('VICTORIA'));
                         } else if (region === 'QLD') {
-                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum <= 2) : (rowRegion.toUpperCase().includes('QLD') || rowRegion.toUpperCase().includes('QUEENSLAND'));
+                            regionMatch = !isNaN(rowRegionNum) ? (rowRegionNum < 2) : (rowRegion.toUpperCase().includes('QLD') || rowRegion.toUpperCase().includes('QUEENSLAND'));
                         }
                     }
 
