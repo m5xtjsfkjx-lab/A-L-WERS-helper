@@ -901,6 +901,18 @@
                 return null;
             }
 
+            // helper to detect SG/DG from common glass fields (robust to different text)
+            function detectGlassSpec(row) {
+                const raw = (row[TABLE1_COLUMNS['GlassSpecification']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['Glass']] || '').toString().trim().toUpperCase();
+                if (!raw) return null;
+                if (raw.includes('SINGLE') || raw === 'SG' || raw.includes(' SG') || raw.includes('/SG') || raw.includes('(SG)') ) return 'SG';
+                if (raw.includes('DOUBLE') || raw === 'DG' || raw.includes(' DG') || raw.includes('/DG') || raw.includes('(DG)') ) return 'DG';
+                // fallback: look for standalone "SG" or "DG" tokens
+                if (/\bSG\b/.test(raw)) return 'SG';
+                if (/\bDG\b/.test(raw)) return 'DG';
+                return null;
+            }
+
             if (table1Data.length > 1) {
                 for (let i = 1; i < table1Data.length; i++) {
                     const row = table1Data[i];
@@ -913,6 +925,16 @@
                     if (regionSel && regionSel !== 'ALL') {
                         if (regionSel === 'VIC' && regionNorm !== 'VIC') continue;
                         if (regionSel === 'QLD' && regionNorm !== 'QLD') continue;
+                    }
+
+                    // Enforce glass-spec per region for GBB flows:
+                    // - QUEENSLAND -> only SG
+                    // - VICTORIA  -> only DG
+                    const glassSpecDetected = detectGlassSpec(row);
+                    if (regionSel === 'QLD') {
+                        if (glassSpecDetected !== 'SG') continue;
+                    } else if (regionSel === 'VIC') {
+                        if (glassSpecDetected !== 'DG') continue;
                     }
 
                     if (pr) productRanges.add(pr);
@@ -1481,6 +1503,17 @@
             const resultsDiv = document.getElementById('gbb-results');
             const contentDiv = document.getElementById('gbb-results-content');
 
+            // helper to detect SG/DG from common glass fields (robust to different text)
+            function detectGlassSpec(row) {
+                const raw = (row[TABLE1_COLUMNS['GlassSpecification']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['Glass']] || '').toString().trim().toUpperCase();
+                if (!raw) return null;
+                if (raw.includes('SINGLE') || raw === 'SG' || raw.includes(' SG') || raw.includes('/SG') || raw.includes('(SG)') ) return 'SG';
+                if (raw.includes('DOUBLE') || raw === 'DG' || raw.includes(' DG') || raw.includes('/DG') || raw.includes('(DG)') ) return 'DG';
+                if (/\bSG\b/.test(raw)) return 'SG';
+                if (/\bDG\b/.test(raw)) return 'DG';
+                return null;
+            }
+
             const results = [];
             if (table1Data.length > 1) {
                 for (let i = 1; i < table1Data.length; i++) {
@@ -1506,6 +1539,17 @@
                     const rowOperator = row[TABLE1_COLUMNS['Operator Type']] ? row[TABLE1_COLUMNS['Operator Type']].toString() : '';
                     // new: extract glass for display
                     const rowGlass = row[TABLE1_COLUMNS['Glass']] || row[TABLE1_COLUMNS['Glass Type']] || row[TABLE1_COLUMNS['GlassSpecification']] || '';
+
+                    // Enforce region-based glass rule:
+                    // - QUEENSLAND -> only SG
+                    // - VICTORIA  -> only DG
+                    const glassDetected = detectGlassSpec(row);
+                    if (region === 'QLD') {
+                        if (glassDetected !== 'SG') continue;
+                    } else if (region === 'VIC') {
+                        if (glassDetected !== 'DG') continue;
+                    }
+
                     const productMatch = !productRange || rowProduct === productRange;
                     const operatorMatch = !operator || rowOperator === operator;
 
