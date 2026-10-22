@@ -3,13 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A&L Windows - WERS & Performance Data</title>
+    <title>Energy Rater - A&L Windows</title>
     
     <!-- Embedded data with all WERS and FR5 proxy information -->
     <script src="embedded_data.js"></script>
     
     <style>
-        /* CSS Styles inspired by A&L Windows design language */
+        @font-face {
+            font-family: 'visuelt-regular';
+            src: url('https://cdn.alwindows.com.au/wp-content/themes/alwindows/static/fonts/visuelt-regular.woff2') format('woff2');
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'visuelt-bold';
+            src: url('https://cdn.alwindows.com.au/wp-content/themes/alwindows/static/fonts/visuelt-bold.woff2') format('woff2');
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        :root {
+            --al-red: #d6000e;
+            --al-red-hover: #b9000c;
+            --al-charcoal: #2f2e2f;
+            --al-text: #424242;
+            --al-muted: #707070;
+            --al-border: #dedede;
+            --al-background: #f5f5f5;
+            --al-surface: #ffffff;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,29 +43,336 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+            font-family: 'visuelt-regular', sans-serif;
+            background-color: var(--al-background);
+            color: var(--al-text);
             line-height: 1.6;
         }
 
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 2rem 0;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+            background: var(--al-surface);
+            color: var(--al-text);
+            border-bottom: 1px solid var(--al-border);
+            box-shadow: 0 2px 8px rgba(66, 66, 66, 0.08);
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 0.5rem;
+        .header-main {
+            position: relative;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 0 1.5rem;
         }
 
-        .header p {
+        .header-logo {
+            flex: 0 0 78px;
+            display: block;
+        }
+
+        .header-logo svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .primary-nav {
+            flex: 1;
+            display: flex;
+            align-self: stretch;
+        }
+
+        .primary-nav > ul {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-self: stretch;
+            gap: 0.25rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .primary-nav > ul > li {
+            display: flex;
+            align-items: stretch;
+            list-style: none;
+        }
+
+        .primary-nav > ul > li > a,
+        .resource-nav a {
+            color: var(--al-text);
+            font-family: 'visuelt-bold', sans-serif;
+            text-decoration: none;
+        }
+
+        .utility-nav a {
+            color: var(--al-text);
+            font-family: 'visuelt-regular', sans-serif;
+            text-decoration: none;
+        }
+
+        .primary-nav > ul > li > a {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 0.8rem;
             font-size: 1.1rem;
-            opacity: 0.9;
+            white-space: nowrap;
+            transition: border 0.5s cubic-bezier(0.4, 0, 0, 1), background 0.5s cubic-bezier(0.4, 0, 0, 1);
+        }
+
+        .primary-nav > ul > li > a:hover,
+        .primary-nav > ul > li > a:focus,
+        .resource-nav a:hover,
+        .resource-nav a:focus {
+            color: var(--al-text);
+        }
+
+        .utility-nav a:hover {
+            color: var(--al-red);
+        }
+
+        .utility-nav > a:not(.quote-link):not(.icon-link) {
+            position: relative;
+            display: flex;
+            align-items: center;
+            align-self: stretch;
+        }
+
+        .utility-nav > a:not(.quote-link):not(.icon-link)::after,
+        .primary-nav > ul > li > a::after,
+        .nav-dropdown a::after,
+        .resource-nav a::after {
+            position: absolute;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            background: transparent;
+            content: "";
+            transition: background 0.5s cubic-bezier(0.4, 0, 0, 1);
+        }
+
+        .utility-nav > a:not(.quote-link):not(.icon-link):hover::after,
+        .utility-nav > a:not(.quote-link):not(.icon-link):focus::after,
+        .primary-nav > ul > li > a:hover::after,
+        .primary-nav > ul > li > a:focus::after,
+        .nav-dropdown a:hover::after,
+        .nav-dropdown a:focus::after,
+        .resource-nav a:hover::after,
+        .resource-nav a:focus::after,
+        .resource-nav a[aria-current="page"]::after {
+            background: var(--al-red);
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+            z-index: 3;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem 1.75rem;
+            padding: 1.1rem 1.5rem;
+            border-top: 1px solid #e8e8e8;
+            background: var(--al-surface);
+            box-shadow: 0 8px 16px rgba(66, 66, 66, 0.12);
+            list-style: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-0.4rem);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        }
+
+        .primary-nav > ul > li:hover > .nav-dropdown,
+        .primary-nav > ul > li:focus-within > .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-dropdown a {
+            position: relative;
+            display: block;
+            padding: 0.4rem 0;
+            color: var(--al-text);
+            font-family: 'visuelt-bold', sans-serif;
+            font-size: 0.95rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-dropdown a:hover,
+        .nav-dropdown a:focus {
+            color: var(--al-red);
+        }
+
+        .page-hero {
+            position: relative;
+            min-height: clamp(360px, 38vw, 540px);
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+            background: var(--al-charcoal);
+            color: var(--al-surface);
+        }
+
+        .page-hero::before {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 42%, rgba(0, 0, 0, 0.38));
+            content: "";
+        }
+
+        .page-hero-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 52%;
+        }
+
+        .page-hero-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 3rem;
+        }
+
+        .breadcrumbs {
+            position: absolute;
+            top: 1.5rem;
+            left: max(1.5rem, calc((100% - 1200px) / 2 + 1.5rem));
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .breadcrumbs a {
+            display: inline-flex;
+            align-items: center;
+            color: var(--al-surface);
+            text-decoration: none;
+        }
+
+        .breadcrumbs a:hover,
+        .breadcrumbs a:focus {
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+        }
+
+        .breadcrumbs svg {
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+        }
+
+        .breadcrumb-separator {
+            font-size: 1.1rem;
+            opacity: 0.85;
+        }
+
+        .page-hero h1 {
+            display: inline-block;
+            margin: 0;
+            border-bottom: 5px solid var(--al-red);
+            color: var(--al-surface);
+            font-family: 'visuelt-bold', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 400;
+            line-height: 1.1;
+        }
+
+        .utility-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .utility-nav a {
+            font-size: 0.9rem;
+        }
+
+        .utility-nav .quote-link {
+            padding: 0.55rem 0.9rem;
+            border: 1px solid var(--al-red);
+            color: var(--al-red);
+            font-family: 'visuelt-bold', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .utility-nav .quote-link:hover {
+            background: var(--al-red);
+            color: var(--al-surface);
+        }
+
+        .utility-nav .icon-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 36px;
+        }
+
+        .utility-nav svg {
+            display: block;
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2;
+        }
+
+        .resource-nav {
+            min-height: 83px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.35rem;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .resource-nav a {
+            position: relative;
+            padding: 0.4rem 0;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .primary-nav > ul > li > a,
+            .primary-nav > ul > li > a::after,
+            .utility-nav > a:not(.quote-link):not(.icon-link)::after,
+            .nav-dropdown a::after,
+            .nav-dropdown,
+            .resource-nav a::after {
+                transition: none;
+            }
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         .container {
@@ -52,17 +385,18 @@
         }
 
         .tab-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: var(--al-surface);
+            border: 1px solid var(--al-border);
+            border-radius: 4px;
+            box-shadow: 0 2px 14px rgba(66, 66, 66, 0.08);
             overflow: hidden;
             margin-bottom: 2rem;
         }
 
         .tab-nav {
             display: flex;
-            background: #ecf0f1;
-            border-bottom: 1px solid #bdc3c7;
+            background: #ebebeb;
+            border-bottom: 1px solid var(--al-border);
         }
 
         .tab-button {
@@ -73,20 +407,21 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: 500;
-            color: #7f8c8d;
+            font-family: 'visuelt-bold', sans-serif;
+            color: var(--al-muted);
             transition: all 0.3s ease;
             position: relative;
         }
 
         .tab-button:hover {
-            background: rgba(52, 73, 94, 0.1);
-            color: #2c3e50;
+            background: rgba(255, 255, 255, 0.75);
+            color: var(--al-red);
         }
 
         .tab-button.active {
-            background: white;
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
+            background: var(--al-surface);
+            color: var(--al-text);
+            border-bottom: 3px solid var(--al-red);
         }
 
         .tab-content {
@@ -103,6 +438,21 @@
             margin-bottom: 2rem;
         }
 
+        #window-code .search-section {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        #window-code .search-section .form-group {
+            min-width: 0;
+            margin-bottom: 0;
+        }
+
+        #window-code .form-control {
+            max-width: none;
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -110,101 +460,108 @@
         .form-group label {
             display: block;
             font-weight: 600;
+            font-family: 'visuelt-bold', sans-serif;
             margin-bottom: 0.5rem;
-            color: #2c3e50;
+            color: var(--al-text);
         }
 
         .form-control {
             width: 100%;
             max-width: 300px;
             padding: 0.75rem;
-            border: 2px solid #bdc3c7;
+            border: 1px solid #c8c8c8;
             border-radius: 4px;
             font-size: 1rem;
+            font-family: 'visuelt-regular', sans-serif;
             transition: border-color 0.3s ease;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            border-color: var(--al-red);
+            box-shadow: 0 0 0 3px rgba(214, 0, 14, 0.1);
         }
 
         .btn {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
+            background: var(--al-red);
+            color: var(--al-surface);
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 4px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 500;
+            font-family: 'visuelt-bold', sans-serif;
+            font-weight: 400;
             transition: all 0.3s ease;
             margin-left: 1rem;
         }
 
         .btn:hover {
+            background: var(--al-red-hover);
             transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 4px 15px rgba(214, 0, 14, 0.2);
         }
 
         .results-container {
-            background: #f8f9fa;
-            border-radius: 6px;
+            background: var(--al-background);
+            border-radius: 4px;
             padding: 1.5rem;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid var(--al-red);
         }
 
         .results-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 6px;
+            background: var(--al-surface);
+            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(66, 66, 66, 0.08);
         }
 
         .results-table th {
-            background: #34495e;
-            color: white;
+            background: var(--al-charcoal);
+            color: var(--al-surface);
             padding: 1rem;
             text-align: left;
             font-weight: 600;
+            font-family: 'visuelt-bold', sans-serif;
         }
 
         .results-table td {
             padding: 1rem;
-            border-bottom: 1px solid #ecf0f1;
+            border-bottom: 1px solid #ebebeb;
         }
 
         .results-table tr:hover {
-            background: #f8f9fa;
+            background: var(--al-background);
         }
 
         .loading {
             text-align: center;
             padding: 2rem;
-            color: #7f8c8d;
+            color: var(--al-muted);
         }
 
         .error {
-            background: #e74c3c;
-            color: white;
+            background: var(--al-red);
+            color: var(--al-surface);
             padding: 1rem;
             border-radius: 4px;
             margin-bottom: 1rem;
         }
 
         .info-card {
-            background: white;
-            border-radius: 6px;
+            background: var(--al-surface);
+            border: 1px solid var(--al-border);
+            border-radius: 4px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(66, 66, 66, 0.06);
         }
 
         .info-card h3 {
-            color: #2c3e50;
+            color: var(--al-text);
+            font-family: 'visuelt-bold', sans-serif;
             margin-bottom: 1rem;
         }
 
@@ -218,12 +575,107 @@
                 flex: none;
             }
             
-            .header h1 {
-                font-size: 2rem;
+            .header-main {
+                min-height: 0;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 0.5rem 1rem;
+                padding: 1rem;
             }
-            
+
+            .header-logo {
+                flex-basis: 64px;
+            }
+
+            .primary-nav {
+                order: 3;
+                flex-basis: 100%;
+            }
+
+            .primary-nav > ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0;
+            }
+
+            .primary-nav > ul > li > a {
+                min-height: 44px;
+                padding: 0 0.65rem;
+                font-size: 0.95rem;
+            }
+
+            .primary-nav > ul > li {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-dropdown {
+                position: static;
+                justify-content: center;
+                gap: 0.35rem 1rem;
+                padding: 0 0.5rem 0.75rem;
+                border: 0;
+                box-shadow: none;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                transition: none;
+            }
+
+            .nav-dropdown a {
+                font-size: 0.8rem;
+            }
+
+            .utility-nav {
+                gap: 0.7rem;
+            }
+
+            .utility-nav a {
+                font-size: 0.8rem;
+            }
+
+            .resource-nav {
+                min-height: 0;
+                justify-content: flex-start;
+                gap: 1.25rem;
+                overflow-x: auto;
+                padding: 0.85rem 1rem;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .resource-nav a {
+                font-size: 0.85rem;
+            }
+
+            .page-hero {
+                min-height: 380px;
+            }
+
+            .page-hero-image {
+                object-position: 56% center;
+            }
+
+            .page-hero-content {
+                padding: 1rem 1rem 2rem;
+            }
+
+            .breadcrumbs {
+                top: 1rem;
+                left: 1rem;
+                gap: 0.55rem;
+                font-size: 0.85rem;
+            }
+
+            .page-hero h1 {
+                font-size: clamp(2.25rem, 10vw, 3rem);
+            }
+
             .container {
                 padding: 1rem;
+            }
+
+            #window-code .search-section {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
             
             .results-table {
@@ -239,17 +691,17 @@
         .no-data {
             text-align: center;
             padding: 2rem;
-            color: #7f8c8d;
+            color: var(--al-muted);
             font-style: italic;
         }
 
         .data-info {
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
+            background: #fff4f4;
+            border: 1px solid #f0c5c7;
             border-radius: 4px;
             padding: 1rem;
             margin-bottom: 1.5rem;
-            color: #0c5460;
+            color: #70282e;
         }
 
         /* Star rating styles */
@@ -260,42 +712,332 @@
             vertical-align: middle;
             margin-right: 2px;
         }
-        .star-empty { fill: #e0e0e0; }
-        .star-label { margin-left: 6px; color: #666; font-size: 0.9rem; vertical-align: middle; }
+        .star-empty { fill: #dedede; }
+        .star-label { margin-left: 6px; color: var(--al-muted); font-size: 0.9rem; vertical-align: middle; }
+
+        .site-footer {
+            color: var(--al-surface);
+        }
+
+        .footer-main {
+            background: #555555;
+        }
+
+        .footer-container {
+            width: min(1200px, 100%);
+            margin: 0 auto;
+            padding: 3.5rem 1.5rem;
+        }
+
+        .footer-columns {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-group h2 {
+            margin-bottom: 1rem;
+            color: var(--al-surface);
+            font-family: 'visuelt-bold', sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .footer-group ul {
+            display: grid;
+            gap: 0.45rem;
+            list-style: none;
+        }
+
+        .footer-group a {
+            color: var(--al-surface);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .footer-group a:hover,
+        .footer-group a:focus {
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+        }
+
+        .footer-bottom {
+            position: relative;
+            background: #414141;
+        }
+
+        .footer-bottom-inner {
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            padding-right: 5rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--al-surface);
+            font-size: 0.82rem;
+        }
+
+        .footer-logo {
+            display: block;
+            width: 60px;
+        }
+
+        .footer-logo svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .footer-partners {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-left: auto;
+            list-style: none;
+        }
+
+        .footer-partners img {
+            display: block;
+            width: auto;
+            max-width: 75px;
+            max-height: 38px;
+        }
+
+        .footer-social {
+            display: flex;
+            align-items: stretch;
+            list-style: none;
+        }
+
+        .footer-social a {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            color: var(--al-surface);
+        }
+
+        .footer-social li + li a {
+            border-left: 0;
+        }
+
+        .footer-social svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .back-to-top {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            transform: translateY(-50%);
+            background: var(--al-surface);
+            color: var(--al-text);
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .back-to-top:hover,
+        .back-to-top:focus {
+            color: var(--al-red);
+        }
+
+        @media (max-width: 900px) {
+            .footer-columns {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .footer-bottom-inner {
+                flex-wrap: wrap;
+                justify-content: center;
+                padding-right: 3rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #window-code .search-section {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .footer-container {
+                padding: 2.5rem 1rem;
+            }
+
+            .footer-columns {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 2rem 1.25rem;
+            }
+
+            .footer-bottom-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.25rem;
+                padding: 1.5rem 4rem 1.5rem 1rem;
+            }
+
+            .footer-brand {
+                flex-wrap: wrap;
+            }
+
+            .footer-partners {
+                flex-wrap: wrap;
+                margin-left: 0;
+            }
+
+            .footer-social a {
+                width: 42px;
+                height: 42px;
+            }
+
+            .back-to-top {
+                right: 0.75rem;
+            }
+        }
 
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <h1>A&L Windows</h1>
-            <p>WERS Performance Data & Reverse Proxy Systems</p>
+    <header class="header" id="top">
+        <div class="header-main">
+            <a class="header-logo" href="https://www.alwindows.com.au/" aria-label="A&L Windows home">
+                <svg viewBox="0 0 207 144" role="img" aria-hidden="true">
+                    <use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#logo-new-primary"></use>
+                </svg>
+            </a>
+            <h1 class="visually-hidden">A&L Windows</h1>
+            <nav class="primary-nav" aria-label="Main navigation">
+                <ul>
+                    <li>
+                        <a href="https://www.alwindows.com.au/product/">Products</a>
+                        <ul class="nav-dropdown" aria-label="Products">
+                            <li><a href="https://www.alwindows.com.au/products/aluminium-windows/">Windows</a></li>
+                            <li><a href="https://www.alwindows.com.au/products/aluminium-doors/">Doors</a></li>
+                            <li><a href="https://www.alwindows.com.au/product/entry-frames/">Aluminium Entry Door Frames</a></li>
+                            <li><a href="https://www.alwindows.com.au/product/screening-solutions/">Screens</a></li>
+                            <li><a href="https://www.alwindows.com.au/boutique-platform-series/">Collections</a></li>
+                            <li><a href="https://www.alwindows.com.au/spare-parts/">Spare Parts</a></li>
+                            <li><a href="https://www.alwindows.com.au/about-us/warranty/">Warranty</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="https://www.alwindows.com.au/product-performance/energy-efficiency/">Energy Efficiency</a>
+                        <ul class="nav-dropdown" aria-label="Energy Efficiency">
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/">ComfortSmart Optimal</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/double-glazed-windows-lp/">Double Glazing</a></li>
+                            <li><a href="https://www.alwindows.com.au/comfortsmart-series/">Thermally Broken Systems</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/inline-reveal/">Inline Reveal</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/low-e-glass/">Low-E glass</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="https://www.alwindows.com.au/resources/" aria-current="page">Resources</a>
+                        <ul class="nav-dropdown" aria-label="Resources">
+                            <li><a href="https://www.alwindows.com.au/resources/design-options/">Design Options</a></li>
+                            <li><a href="https://www.alwindows.com.au/inspiration/showcase/room/">Gallery</a></li>
+                            <li><a href="https://my.matterport.com/show/?m=nxVhNXuXrGW" target="_blank" rel="noopener noreferrer">Virtual Showroom</a></li>
+                            <li><a href="https://www.alwindows.com.au/resources/product-installation/">Product Installation</a></li>
+                            <li><a href="https://www.alwindows.com.au/resources/product-care/">Product Care</a></li>
+                            <li><a href="https://www.alwindows.com.au/resources/technical-centre/">Technical Files</a></li>
+                            <li><a href="./index.html" aria-current="page">Energy Rater</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="https://www.alwindows.com.au/product-performance/">Performance</a>
+                        <ul class="nav-dropdown" aria-label="Performance">
+                            <li><a href="https://www.alwindows.com.au/product-performance/bushfire-ratings/">Bushfire Ratings</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/acoustic-performance/">Acoustic Performance</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/cyclone-resistance/">Cyclone Resistance</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/light-and-ventilation/">Light and Ventilation</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="utility-nav" aria-label="Additional navigation">
+                <a href="https://www.alwindows.com.au/about-us/">About</a>
+                <a href="https://www.alwindows.com.au/blog/">Blog</a>
+                <a href="https://www.alwindows.com.au/contacts/">Contact</a>
+                <a class="quote-link" href="https://www.alwindows.com.au/contacts/?contact_reason=Quote%20Request#enquiry-form">GET A QUOTE</a>
+                <a class="icon-link" href="https://www.alwindows.com.au/?s=" aria-label="Search A&L Windows">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+                </a>
+                <a class="icon-link" href="https://www.alwindows.com.au/spare-parts/#/cart" aria-label="Shopping cart">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg>
+                </a>
+            </nav>
         </div>
     </header>
+
+    <section class="page-hero" aria-labelledby="page-title">
+        <img
+            class="page-hero-image"
+            src="https://cdn.alwindows.com.au/wp-content/uploads/2020/12/Product-Performance-1920x917.jpg"
+            alt="A&L windows opening onto a leafy outdoor space"
+        >
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="https://www.alwindows.com.au/" aria-label="Home">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8h-2v9h-5v-6h-4v6H5v-9H3z"></path></svg>
+            </a>
+            <span class="breadcrumb-separator" aria-hidden="true">›</span>
+            <span aria-current="page">Energy Rater</span>
+        </nav>
+        <div class="page-hero-content">
+            <h1 id="page-title">Energy Rater</h1>
+        </div>
+    </section>
 
     <div class="container">
 <!--        <div class="data-info"> -->
 <!--            <strong>Data Source:</strong> Embedded internally (no external files needed) -->
-<!--            <span id="data-status" style="margin-left: 1rem; font-weight: 600; color: #e74c3c;">Loading embedded data...</span> -->
+<!--            <span id="data-status" style="margin-left: 1rem; font-weight: 600; color: #d6000e;">Loading embedded data...</span> -->
 <!--        </div> -->
 
         <div class="tab-container">
             <nav class="tab-nav">
-                <button class="tab-button active" onclick="showTab('proxy-finder')">Proxy Finder</button>
-                <button class="tab-button" onclick="showTab('window-code')">Window Code</button>
+                <button class="tab-button active" onclick="showTab('window-code')">Window Code</button>
+                <button class="tab-button" onclick="showTab('proxy-finder')">Proxy Finder</button>
                 <button class="tab-button" onclick="showTab('reverse-proxy-vic')">Reverse Proxy VIC</button>
                 <button class="tab-button" onclick="showTab('reverse-proxy-qld')">Reverse Proxy QLD</button>
                 <button class="tab-button" onclick="showTab('good-better-best')">Good Better Best</button>
             </nav>
 
             <!-- Proxy Finder Tab -->
-            <div id="proxy-finder" class="tab-content active">
+            <div id="proxy-finder" class="tab-content">
                 <div class="info-card">
                     <h3>Proxy Finder - A&L WERS Code to FR5 Proxy Values</h3>
                     <p>Find FR5 proxy equivalents for A&L WERS codes. Results include U-Value, SHGC, performance ratings, and FR5 proxy information.</p>
                 </div>
                 
                 <div class="search-section">
+                    <div class="form-group">
+                        <label for="proxy-region-filter">Region:</label>
+                        <select id="proxy-region-filter" class="form-control" onchange="updateProxyFinderFilters();">
+                            <option value="">All Regions</option>
+                            <option value="QLD">Queensland</option>
+                            <option value="VIC">Victoria</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="proxy-glass-filter">Glazing:</label>
+                        <select id="proxy-glass-filter" class="form-control" onchange="updateProxyFinderFilters();">
+                            <option value="">All Glazing Types</option>
+                            <option value="SG">Single Glazed</option>
+                            <option value="DG">Double Glazed</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="wers-code-select">Select A&L WERS Code:</label>
                         <select id="wers-code-select" class="form-control">
@@ -311,7 +1053,7 @@
             </div>
 
             <!-- Window Code Tab -->
-            <div id="window-code" class="tab-content">
+            <div id="window-code" class="tab-content active">
                 <div class="info-card">
                     <h3>Window Code Finder - Find A&L WERS Code by Product Specifications</h3>
                     <p>Use filters to find the appropriate A&L WERS code for your window specifications.</p>
@@ -451,6 +1193,102 @@
         </div>
     </div>
 
+    <footer class="site-footer">
+        <section class="footer-main" aria-label="A&L Windows links">
+            <div class="footer-container">
+                <nav class="footer-columns" aria-label="Footer navigation">
+                    <section class="footer-group">
+                        <h2>Products</h2>
+                        <ul>
+                            <li><a href="https://www.alwindows.com.au/products/aluminium-windows/">Windows</a></li>
+                            <li><a href="https://www.alwindows.com.au/products/aluminium-doors/">Doors</a></li>
+                            <li><a href="https://www.alwindows.com.au/products/entry-frames/">Entry Frames</a></li>
+                            <li><a href="https://www.alwindows.com.au/product/screening-solutions/">Screens</a></li>
+                            <li><a href="https://www.alwindows.com.au/boutique-platform-series/">Collections</a></li>
+                            <li><a href="https://www.alwindows.com.au/spare-parts/">Spare Parts</a></li>
+                            <li><a href="https://www.alwindows.com.au/about-us/warranty/">Warranty</a></li>
+                        </ul>
+                    </section>
+                    <section class="footer-group">
+                        <h2>Energy Efficiency</h2>
+                        <ul>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/">ComfortSmart Optimal</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/double-glazed-windows-lp/">Double Glazing</a></li>
+                            <li><a href="https://www.alwindows.com.au/comfortsmart-series/">Thermally Broken Systems</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/inline-reveal/">Inline Reveal</a></li>
+                            <li><a href="https://www.alwindows.com.au/product-performance/energy-efficiency/low-e-glass/">Low-E glass</a></li>
+                        </ul>
+                    </section>
+                    <section class="footer-group">
+                        <h2>Resources</h2>
+                        <ul>
+                            <li><a href="https://www.alwindows.com.au/resources/design-options/">Design Options</a></li>
+                            <li><a href="https://www.alwindows.com.au/inspiration/showcase/room/">Gallery</a></li>
+                            <li><a href="https://my.matterport.com/show/?m=nxVhNXuXrGW" target="_blank" rel="noopener noreferrer">Virtual Showroom</a></li>
+                            <li><a href="https://www.alwindows.com.au/resources/product-installation/">Product Installation</a></li>
+                            <li><a href="https://www.alwindows.com.au/resources/product-care/">Product Care</a></li>
+                            <li><a href="https://www.alwindows.com.au/resources/technical-centre/">Technical Files</a></li>
+                            <li><a href="./index.html">Energy Rater</a></li>
+                        </ul>
+                    </section>
+                    <section class="footer-group">
+                        <h2>About us</h2>
+                        <ul>
+                            <li><a href="https://www.alwindows.com.au/always-australian/">Locally made</a></li>
+                            <li><a href="https://www.alwindows.com.au/blog/">Blog</a></li>
+                            <li><a href="https://www.alwindows.com.au/about-us/warranty/">Warranty</a></li>
+                            <li><a href="https://www.alwindows.com.au/about-us/careers/">Careers</a></li>
+                        </ul>
+                    </section>
+                    <section class="footer-group">
+                        <h2>Contact us</h2>
+                        <ul>
+                            <li><a href="https://www.alwindows.com.au/contacts/find-a-display/">Find a display</a></li>
+                            <li><a href="https://www.alwindows.com.au/contacts/?contact_reason=Quote%20Request#enquiry-form">Get a quote</a></li>
+                            <li><a href="https://www.alwindows.com.au/contacts/?contact_reason=Feedback#enquiry-form">Give feedback</a></li>
+                        </ul>
+                    </section>
+                    <section class="footer-group">
+                        <h2>Policies</h2>
+                        <ul>
+                            <li><a href="https://www.alwindows.com.au/privacy-policy/">Privacy Policy</a></li>
+                            <li><a href="https://www.alwindows.com.au/terms-of-use/">Terms of Use</a></li>
+                            <li><a href="https://www.alwindows.com.au/terms-and-conditions/">Terms of Trade</a></li>
+                            <li><a href="https://www.alwindows.com.au/online-ordering-of-screens/">Online Ordering of Screens</a></li>
+                            <li><a href="https://www.alwindows.com.au/online-ordering-of-spare-parts/">Online Ordering of Spare Parts</a></li>
+                        </ul>
+                    </section>
+                </nav>
+            </div>
+        </section>
+        <div class="footer-bottom">
+            <div class="footer-container footer-bottom-inner">
+                <div class="footer-brand">
+                    <a class="footer-logo" href="https://www.alwindows.com.au/" aria-label="A&L Windows home">
+                        <svg viewBox="0 0 207 144" aria-hidden="true">
+                            <use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#logo-new-reversed"></use>
+                        </svg>
+                    </a>
+                    <span>Copyright © 2026 A&L. All rights reserved.</span>
+                </div>
+                <ul class="footer-partners" aria-label="Industry memberships and awards">
+                    <li><a href="https://www.productreview.com.au/" target="_blank" rel="noopener noreferrer"><img src="https://cdn.alwindows.com.au/wp-content/themes/alwindows/static/img/award-product-review.svg" alt="ProductReview.com.au 2026 awards winner"></a></li>
+                    <li><a href="https://www.agwa.com.au/" target="_blank" rel="noopener noreferrer"><img src="https://cdn.alwindows.com.au/wp-content/themes/alwindows/static/img/membership-awa.svg" alt="Australian Window Association"></a></li>
+                    <li><a href="https://www.masterbuilders.com.au/Home" target="_blank" rel="noopener noreferrer"><img src="https://cdn.alwindows.com.au/wp-content/themes/alwindows/static/img/membership-master-builder.svg" alt="Master Builders"></a></li>
+                    <li><a href="https://hia.com.au/" target="_blank" rel="noopener noreferrer"><img src="https://cdn.alwindows.com.au/wp-content/themes/alwindows/static/img/membership-hia.svg" alt="Housing Industry Association"></a></li>
+                </ul>
+                <ul class="footer-social" aria-label="A&L Windows social media">
+                    <li><a href="https://www.linkedin.com/company/a&amp;l/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#linkedin"></use></svg></a></li>
+                    <li><a href="https://www.youtube.com/user/alwindowsdoors" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#youtube"></use></svg></a></li>
+                    <li><a href="https://www.pinterest.com/alwindows/" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#pinterest"></use></svg></a></li>
+                    <li><a href="https://www.instagram.com/alwindowsdoors/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#instagram"></use></svg></a></li>
+                    <li><a href="https://www.houzz.com.au/pro/alwindows/aandl-windows-doors" target="_blank" rel="noopener noreferrer" aria-label="Houzz"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="https://www.alwindows.com.au/wp-content/themes/alwindows/static/dist/svg/sprite.svg?v1.2#houzz"></use></svg></a></li>
+                </ul>
+            </div>
+            <a class="back-to-top" href="#top" aria-label="Back to top">↑</a>
+        </div>
+    </footer>
+
     <script>
         // Global variables to store Excel data
         let excelData = {};
@@ -578,7 +1416,7 @@
             } catch (error) {
                 console.error('Error loading embedded data:', error);
                 statusEl.textContent = '✗ Error: ' + error.message;
-                statusEl.style.color = '#e74c3c';
+                statusEl.style.color = '#d6000e';
             }
         }
 
@@ -644,24 +1482,9 @@
          * Populate dropdown menus with data
          */
         function populateDropdowns() {
-            // Populate WERS code dropdown
             const wersSelect = document.getElementById('wers-code-select');
-            wersSelect.innerHTML = '<option value="">Select A&L WERS Code...</option>';
-            
-            wersCodeOptions.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.rowIndex;
-                option.textContent = item.code;
-                wersSelect.appendChild(option);
-            });
-
-            // Auto-select first available WERS code to display results instantly
-            if (wersSelect.options.length > 1) {
-                wersSelect.selectedIndex = 1;
-            }
-
-            // Listen for user changes and refresh results
             wersSelect.addEventListener('change', searchProxyFinder);
+            updateProxyFinderFilters();
 
             // Populate VIC and QLD proxy dropdowns
             populateProxyDropdowns();
@@ -673,6 +1496,67 @@
             updateWindowCodeFilters();
             // Initialize Good Better Best filters
             updateGBBFilters();
+        }
+
+        /**
+         * Filter Proxy Finder WERS codes by region and glazing type.
+         */
+        function updateProxyFinderFilters() {
+            const regionFilter = document.getElementById('proxy-region-filter').value;
+            const glassFilter = document.getElementById('proxy-glass-filter').value;
+            const wersSelect = document.getElementById('wers-code-select');
+            const selectedRowIndex = wersSelect.value;
+            const filteredOptions = wersCodeOptions.filter(item => {
+                const row = table1Data[item.rowIndex];
+                const rawRegion = row[TABLE1_COLUMNS['VIC / QLD']];
+                const numericRegion = parseFloat(rawRegion);
+                const regionText = (rawRegion || '').toString().trim().toUpperCase();
+                const regionMatches = !regionFilter || (!isNaN(numericRegion)
+                    ? regionFilter === 'QLD'
+                        ? numericRegion >= 1 && numericRegion <= 2
+                        : numericRegion >= 2 && numericRegion <= 3
+                    : regionFilter === 'QLD'
+                        ? regionText.includes('QLD') || regionText.includes('QUEENSLAND')
+                        : regionText.includes('VIC') || regionText.includes('VICTORIA'));
+
+                const rawGlass = (
+                    row[TABLE1_COLUMNS['GlassSpecification']]
+                    || row[TABLE1_COLUMNS['Glass Type']]
+                    || row[TABLE1_COLUMNS['Glass']]
+                    || ''
+                ).toString().trim().toUpperCase();
+                const glass = rawGlass === 'SG' || rawGlass.includes('SINGLE') || /\bSG\b/.test(rawGlass)
+                    ? 'SG'
+                    : rawGlass === 'DG' || rawGlass.includes('DOUBLE') || /\bDG\b/.test(rawGlass)
+                        ? 'DG'
+                        : '';
+
+                const glassMatches = !glassFilter || glass === glassFilter;
+                return regionMatches && glassMatches;
+            });
+
+            wersSelect.innerHTML = '';
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = filteredOptions.length
+                ? 'Select A&L WERS Code...'
+                : 'No matching WERS codes';
+            wersSelect.appendChild(placeholder);
+
+            filteredOptions.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.rowIndex;
+                option.textContent = item.code;
+                wersSelect.appendChild(option);
+            });
+
+            if (filteredOptions.some(item => item.rowIndex.toString() === selectedRowIndex)) {
+                wersSelect.value = selectedRowIndex;
+            } else if (filteredOptions.length > 0) {
+                wersSelect.selectedIndex = 1;
+            }
+
+            searchProxyFinder();
         }
 
         /**
@@ -1090,12 +1974,12 @@
 <!--                            </tr> -->
                             <tr>
                                 <td><strong>Cooling Performance</strong></td>
-                                <td>${renderStars(cooling, '#3498db')}</td>
+                                <td>${renderStars(cooling, '#d6000e')}</td>
                                 <td>-</td>
                             </tr>
                             <tr>
                                 <td><strong>Heating Performance</strong></td>
-                                <td>${renderStars(heating, '#e74c3c')}</td>
+                                <td>${renderStars(heating, '#d6000e')}</td>
                                 <td>-</td>
                             </tr>
                             <tr>
@@ -1172,7 +2056,8 @@
                             shgc: row[TABLE1_COLUMNS['SHGCw']],
                             cooling: row[TABLE1_COLUMNS['Cooling*']],
                             heating: row[TABLE1_COLUMNS['Heating*']],
-                            glass: rowGlass
+                            glass: rowGlass,
+                            proxyCode: row[TABLE1_COLUMNS['FR5 Window Id']] || ''
                         });
                     }
                 }
@@ -1191,6 +2076,7 @@
                                 <th>SHGC</th>
                                 <th>Cooling</th>
                                 <th>Heating</th>
+                                <th>Proxy Code</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1204,8 +2090,9 @@
                             <td>${result.glass}</td>
                             <td>${result.uw}</td>
                             <td>${result.shgc}</td>
-                            <td>${renderStars(result.cooling, '#3498db')}</td>
-                            <td>${renderStars(result.heating, '#e74c3c')}</td>
+                            <td>${renderStars(result.cooling, '#d6000e')}</td>
+                            <td>${renderStars(result.heating, '#d6000e')}</td>
+                            <td>${result.proxyCode}</td>
                         </tr>
                     `;
                 });
@@ -1345,8 +2232,8 @@
                             <td>${r.glass}</td>
                             <td>${r.uw}</td>
                             <td>${r.shgc}</td>
-                            <td>${renderStars(r.cooling, '#3498db')}</td>
-                            <td>${renderStars(r.heating, '#e74c3c')}</td>
+                            <td>${renderStars(r.cooling, '#d6000e')}</td>
+                            <td>${renderStars(r.heating, '#d6000e')}</td>
                         </tr>
                     `;
                 });
@@ -1479,8 +2366,8 @@
                             <td>${r.glass}</td>
                             <td>${r.uw}</td>
                             <td>${r.shgc}</td>
-                            <td>${renderStars(r.cooling, '#3498db')}</td>
-                            <td>${renderStars(r.heating, '#e74c3c')}</td>
+                            <td>${renderStars(r.cooling, '#d6000e')}</td>
+                            <td>${renderStars(r.heating, '#d6000e')}</td>
                         </tr>
                     `;
                 });
@@ -1597,8 +2484,8 @@
                             <td>${result.glass}</td>
                             <td>${result.uw}</td>
                             <td>${result.shgc}</td>
-                            <td>${renderStars(result.cooling, '#3498db')}</td>
-                            <td>${renderStars(result.heating, '#e74c3c')}</td>
+                            <td>${renderStars(result.cooling, '#d6000e')}</td>
+                            <td>${renderStars(result.heating, '#d6000e')}</td>
                         </tr>
                     `;
                 });
@@ -1636,7 +2523,7 @@
         
         /**
          * Render star ratings (up to 5 stars). Values are rounded to nearest 0.5.
-         * color: hex string for filled portion (e.g. '#3498db' or '#e74c3c')
+         * color: hex string for filled portion (e.g. the A&L brand red)
          */
         function renderStars(value, color) {
             if (value === '' || value === null || isNaN(parseFloat(value))) return '<span class="no-data">-</span>';
